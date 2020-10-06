@@ -9,6 +9,7 @@ const numeral = require('numeral')
 const _ = require('lodash')
 const axios = require('axios')
 const fs = require('fs');
+var walletInfo = require('./walletInfo.js');
 
 // SERVER CONFIG
 const PORT = process.env.PORT || 5000
@@ -41,6 +42,7 @@ const daiContract = new web3.eth.Contract(DAI_ABI, DAI_ADDRESS);
 
 async function checkBalances() {
   let balance
+  walletInfo.getTransactions();
 
   // Check Ether balance swap
   balance = await web3.eth.getBalance(process.env.ACCOUNT)
