@@ -1,5 +1,6 @@
 const accountType = require('./accountType.js');
 var etherscan = require('./etherscan.js');
+var binance = require('./binance.js');
 
 class Account {
     /*
@@ -44,6 +45,24 @@ class Account {
                 case accountType.KRAKEN:
                     console.log("[TODO] call Kraken API for",this.address);
                     //krakenAPI.loadTransactions(this.address);
+                break;
+                case accountType.BINANCE:
+                    //console.log("[TODO] call Kraken API for",this.address);
+                    //krakenAPI.loadTransactions(this.address);
+                    //Call API
+                    function getPromise2(address){
+                        return new Promise(function(resolve,reject){
+                            resolve(binance.loadTransactions(address,currency,contractAdress));
+                        });
+                    }
+
+                    //Get the result
+                    async function getResult2(address){
+                        let result = await getPromise2(address);
+                        return result;
+                    };
+                    //Wait 
+                    this.tokenList = await getResult2(this.address);
                 break;
             }
             

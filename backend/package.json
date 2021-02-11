@@ -20,9 +20,13 @@
     "etherscan-api": "^10.0.5",
     "express": "^4.15.2",
     "infura-web3-provider": "0.0.3",
+    "kraken-api": "^1.0.1",
     "lodash": "^4.17.15",
     "moment": "^2.25.3",
     "moment-timezone": "^0.5.28",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.11.14",
+    "node-binance-api": "^0.12.4",
     "numeral": "^2.0.6"
   },
   "devDependencies": {

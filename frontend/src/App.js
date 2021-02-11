@@ -5,8 +5,9 @@ import PropTypes from 'prop-types';
 import SplitButton from 'react-bootstrap/SplitButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+
+
+import MyModalComponent from './ModalComponent';
 
 const axios = require("axios");
 var lastestSort = "";
@@ -14,37 +15,23 @@ const walletAdress = ["0x840647CB127112d0eDB9E6c3ce8E0c083b99516a","0x1e955aa345
 const portfolio = ["Raw","Free","Minted","Stable","Unfollowed"];
 const selectedPortfolio = "Raw";
 
-function MyVerticallyCenteredModal(props) {
-  const [modalShow, setModalShow] = React.useState(false);
-
-  return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Modal heading
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>Centered Modal</h4>
-        <p>
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros.
-        </p>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-      </Modal.Footer>
-    </Modal>
-  );
-}
-
 class App extends React.Component {
+  // Transaction MODAL
+  handleShow = (tx) => {
+    this.setState({
+      show: true,
+      title: 'Group People',
+      body: 'Hi, find my group details',
+      data: tx
+    });
+  };
+
+  handleClose = (fromModal) => {
+    this.setState({
+      show: false
+    });
+  };
+  
   async componentWillMount() {
     //await this.getData()
     await this.getData2(walletAdress[0])
@@ -86,9 +73,15 @@ class App extends React.Component {
       localStorage.setItem("rawData",JSON.stringify(result));
       
     }
+    console.log(result);
     this.setState({ rawData : result });
 
-    this.setSortedField("totalValue",result);
+    console.log(this.state.selectedPortfolio);
+    if(this.state.selectedPortfolio !== undefined){
+      this.selectPortfolio(this.state.selectedPortfolio);
+    }
+
+    //this.setSortedField("totalValue",result);
     
     this.setState({ loading: false })
 
@@ -167,7 +160,7 @@ class App extends React.Component {
       i++;
     }
     
-    if(refresh){
+    if(refresh && result.length === this.state.ccData.length){
       this.setState({
         totalValue : tmpTotalValue
       })
@@ -176,9 +169,7 @@ class App extends React.Component {
         rawData : result
       })
     }
-    if(this.state.selectedPortfolio !== undefined){
-      this.selectPortfolio(this.state.selectedPortfolio);
-    }
+    
     this.setState({ loading: false })
     return result;
   }
@@ -190,21 +181,26 @@ class App extends React.Component {
   selectPortfolio(portfolio){
     //console.log(portfolio, this.state.portfolioTokenList,this.state.rawData);
     let result = this.state.rawData;
+    console.log(result);
     let filteredPortfoloList = this.state.portfolioTokenList.filter(p => (p.portfolio === portfolio));
     //console.log(filteredPortfoloList);
     //let index
+    let tmpTotalValue = 0;
+
     result = result.filter(t => {
                                   let ind = filteredPortfoloList.findIndex(p => (p.tokenName === t.name));
                                   //console.log(ind, t.name);
                                   if(ind === -1){
                                     return false;
                                   }
-                                  //console.log(filteredPortfoloList[ind].portfolio, portfolio);
+                                  //console.log(filteredPortfoloList[ind], portfolio);
+                                  tmpTotalValue += t.totalValue;
                                   return filteredPortfoloList[ind].portfolio === portfolio;
                                 });
-    //console.log(result, filteredPortfoloList.findIndex(p => (p.tokenName === "DAI")));
-    this.setState({ selectedPortfolio : portfolio })
-    this.setState({ ccData : result })
+    console.log(result);
+    this.setState({ totalValue : tmpTotalValue });
+    this.setState({ selectedPortfolio : portfolio });
+    this.setState({ ccData : result });
   }
 
   // Move a token to a portfolio
@@ -328,7 +324,9 @@ class App extends React.Component {
       walletAdress: walletAdress,
       portfolio: portfolio,
       selectedPortfolio: selectedPortfolio,
-      lastestSort: lastestSort
+      lastestSort: lastestSort,
+      //Ytansactions Modal
+      data: []
 
     }
     //const web3Context = context.web3;
@@ -347,9 +345,14 @@ class App extends React.Component {
           >
             Crypt0li0
           </a>
-          {/* {this.state.loading ? "" : <button type="button" class="btn btn-outline-primary" onClick={() => {this.loadToken(this.state.ccData,true)}}>Refresh Price</button> }
-          {this.state.loading ? "" : <button type="button" class="btn btn-outline-primary" onClick={() => {this.hardRefresh()}}>Reload</button> } */}
-          
+                   
+
+          {this.state.loading ? <div id="loader" className="nav-item text-nowrap d-none d-sm-none d-sm-block">Loading...</div> :
+            <li className="nav-item text-nowrap d-none d-sm-none d-sm-block">
+              <small>{this.state.selectedPortfolio} total: {(this.state.totalValue).toLocaleString("fr-CH")}€</small>&nbsp;
+              <small>({this.state.rawData.length} tokens)</small>
+            </li>
+          }
           <div>
             {[SplitButton].map((DropdownType, idx) => (
               <DropdownType
@@ -370,7 +373,6 @@ class App extends React.Component {
             ))}
           </div>
 
-
           <div>
             {[SplitButton].map((DropdownType, idx) => (
               <DropdownType
@@ -390,16 +392,10 @@ class App extends React.Component {
                     <Dropdown.Item eventKey={key} onClick={() => {this.getData2(data,true)}}>Reload {data}</Dropdown.Item>
                   )
                 })}
+                <Dropdown.Item eventKey="5" onClick={() => {this.hardRefresh()}}>Add wallet/account</Dropdown.Item>
               </DropdownType>
             ))}
           </div>
-
-          {this.state.loading ? <div id="loader" className="nav-item text-nowrap d-none d-sm-none d-sm-block">Loading...</div> :
-            <li className="nav-item text-nowrap d-none d-sm-none d-sm-block">
-              <small>Total wallet value:</small>&nbsp;
-                {(this.state.totalValue).toLocaleString("fr-CH")}€
-            </li>
-          }
         </nav>
         &nbsp;
         
@@ -430,7 +426,7 @@ class App extends React.Component {
                     </thead>
                       <tbody>
                         { this.state.ccData.map((data, key) => {
-                          console.log(data);
+                          //console.log(data);
                           return(
                               <tr key={key}>
                               <td class={data.tokenInfo && data.tokenInfo.price_change_percentage_24h > 0 ? "table-success" : "table-danger"}>
@@ -470,7 +466,8 @@ class App extends React.Component {
                                     >
                                       <Dropdown.Item eventKey="0">Wallet: {data.account}</Dropdown.Item>
                                       <Dropdown.Item eventKey="0" onClick={() => {this.getTokenInfo(data.account,data.contractAddress,'eur')}}>Refresh data of {data.name}</Dropdown.Item>
-                                      
+                                      <Dropdown.Item eventKey="0" onClick={() => {this.handleShow(data.txList)}}>See tx</Dropdown.Item>
+
                                       <Dropdown.Divider />
                                       <Dropdown.Item eventKey="0">Move to wallet</Dropdown.Item>
                                       { this.state.portfolio.map((dataP, keyP) => {
@@ -491,9 +488,17 @@ class App extends React.Component {
               </main>
             </div>
           </div>
-          <MyVerticallyCenteredModal
-            
-            />
+          <div>
+
+            <MyModalComponent
+              show={this.state.show}
+              title={this.state.title}
+              body={this.state.body}
+              data={this.state.data}
+              onClick={this.handleClose}
+              onHide={this.handleClose} />
+
+          </div>
       </div>
       
     );
