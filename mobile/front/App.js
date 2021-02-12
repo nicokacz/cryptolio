@@ -8,6 +8,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Image,
   TouchableOpacity,
 } from 'react-native';
 
@@ -18,8 +19,8 @@ import DeviceInfo from 'react-native-device-info';
 const storeData = async (value) => {
   try {
     const jsonValue = JSON.stringify(value)
-    console.log(jsonValue)
-    await AsyncStorage.setItem('deviceId', jsonValue)
+    //console.log(jsonValue)
+    await AsyncStorage.setItem('deviceIdo', jsonValue)
   } catch (e) {
     // saving error
     console.log(e)
@@ -28,7 +29,8 @@ const storeData = async (value) => {
 
 const getData = async () => {
   try {
-    const jsonValue = await AsyncStorage.getItem('deviceId')
+    const jsonValue = await AsyncStorage.getItem('deviceIdo')
+    //console.log("getData",jsonValue)
     return jsonValue != null ? JSON.parse(jsonValue) : null;
   } catch(e) {
     console.log(e)
@@ -38,14 +40,47 @@ const getData = async () => {
 
 
 const App = () => {
-  const [deviceId, setDeviceId] = 
-    useState('Click below to get unique Id');
+  const [deviceId, setDeviceId] = useState('Click below to get unique Id');
 
   const getdeviceId = () => {
     var uniqueId = DeviceInfo.getUniqueId();
-    setDeviceId(uniqueId);
-    storeData(uniqueId);
-    console.log(uniqueId,getData());
+    setDeviceId("eee");
+    let o = {};
+    o.uniqueId = uniqueId
+    storeData(o);
+  };
+
+  const [check, setCheck] = React.useState(null);
+
+  React.useEffect(() => {
+      async function checkData() {
+          const data = await getData();
+          setCheck(data.uniqueId);
+      }
+      checkData();
+
+  }, []);
+
+
+  const getDataUsingGet = () => {
+    //GET request
+    fetch('http://127.0.0.1:5000/v1/getTokens/Bitcoin/', {
+      method: 'GET',
+      //Request Type
+    })
+      .then((response) => response.json())
+      //If response is in json then in success
+      .then((responseJson) => {
+        //Success
+        alert(JSON.stringify(responseJson));
+        console.log(responseJson);
+      })
+      //If response is not in json then in error
+      .catch((error) => {
+        //Error
+        alert(JSON.stringify(error));
+        console.error(error);
+      });
   };
 
   return (
@@ -62,9 +97,33 @@ const App = () => {
           activeOpacity={0.5}
           style={styles.buttonStyle}>
           <Text style={styles.buttonTextStyle}>
-            SHOW ME THE UNIQUE ID OF DEVICE
+            SHOW ME THE UNIQUE ID OF DEVICE {check}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.buttonStyle}
+            onPress={getDataUsingGet}>
+            <Text style={styles.textStyle}>
+              Get Data Using GET
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={getDataUsingGet}
+            style={styles.touchableOpacityStyle}>
+            <Image
+              // FAB using TouchableOpacity with an image
+              // For online image
+              source={{
+                uri:
+                  'https://raw.githubusercontent.com/AboutReact/sampleresource/master/plus_icon.png',
+              }}
+              // For local image
+              //source={require('./images/float-add-icon.png')}
+              style={styles.floatingButtonStyle}
+            />
+          </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -97,5 +156,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 20,
     color: '#f00',
+  },
+  touchableOpacityStyle: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 30,
+  },
+  floatingButtonStyle: {
+    resizeMode: 'contain',
+    width: 50,
+    height: 50,
+    //backgroundColor:'black'
   },
 });
