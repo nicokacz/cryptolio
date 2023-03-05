@@ -9,8 +9,8 @@ var Token = require('./Token');
 const Token2 = require("./TokenSchema.js");
 
 //Kraken.com
-const key          = '3Z+qhcGQ1fQBlnzOmiTt+3/Z6HYk+ai3qqEJBH+MU7Ag4qx2y1PrCWVP'; // API Key
-const secret       = 'CZ+lqQoznhSBHyWZ4GrVJAnYjmdcqw0jioPe5MVmaMrYrdvRuvAeHLpmA193KTg/EU6CIneWpATvI2IkKcaCrw=='; // API Private Key
+const key          = '***'; // API Key
+const secret       = '***'; // API Private Key
 const KrakenClient = require('kraken-api');
 const kraken       = new KrakenClient(key, secret);
 
