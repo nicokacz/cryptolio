@@ -7,8 +7,8 @@ const depracatedContract = ['0xFE2786D7D1cCAb8B015f6Ef7392F67d778f8d8D7']; //0xF
 //Binance.com
 const Binance = require('node-binance-api');
 const binance = new Binance().options({
-  APIKEY: 'Bzu2XtgzeHSuwL26pAYOKF6L3VQUGUPaB6R4p0gllUjbmHKYWwq3JEx0DJfIclQr',
-  APISECRET: 'FWLZJjsyb7nLOApBeDztr3HrXwykRmgDkuS746PODvtdMxr3IdzT243h5NAYMFli'
+  APIKEY: '***',
+  APISECRET: '***'
 });
 
 async function sleep(ms) {
